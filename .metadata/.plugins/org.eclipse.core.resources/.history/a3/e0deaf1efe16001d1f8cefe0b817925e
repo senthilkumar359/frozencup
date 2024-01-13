@@ -1,0 +1,75 @@
+package com.example.jwtsecurity.service;
+
+import com.example.jwtsecurity.entity.Role;
+import com.example.jwtsecurity.entity.User;
+import com.example.jwtsecurity.repository.RoleRepository;
+import com.example.jwtsecurity.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    public User registerNewUser(User user) throws Exception{
+        User temp=new User();
+        try {
+            temp.setUsername(" ");
+           temp = userRepository.findByUsername(user.getUsername()).get();
+        }
+        catch (Exception e){}
+        if(!temp.getUsername().equals(user.getUsername())) {
+            Role role = roleRepository.findByRoleName("USER");
+            Set<Role> roles = new HashSet<>();
+            roles.add(role);
+            user.setRoles(roles);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            return userRepository.save(user);
+        }
+        else{
+            throw new UsernameNotFoundException("User already exist");
+        }
+    }
+
+    public void inituserAndRoles(){
+//        Role role1=new Role();
+//        role1.setRoleName("USER");
+//        roleRepository.save(role1);
+//
+        Role role2=new Role();
+        role2.setRoleName("ADMIN");
+//        roleRepository.save(role2);
+
+        /*User user1=new User();
+        user1.setUsername("arun");
+        user1.setPassword(passwordEncoder.encode("arun123"));
+        user1.setActive(false);
+        user1.setMobileNo("9788453666");
+        Set<Role> roles=new HashSet<>();
+        roles.add(role1);
+        user1.setRoles(roles);
+        userRepository.save(user1);
+*/
+        User user2=new User();
+        user2.setUsername("admin");
+        user2.setPassword(passwordEncoder.encode("Admin@12345"));
+        user2.setActive(false);
+        user2.setMobileNo("9788453000");
+        Set<Role> roles1=new HashSet<>();
+        roles1.add(role2);
+        user2.setRoles(roles1);
+        userRepository.save(user2);
+    }
+}
